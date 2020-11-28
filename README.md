@@ -18,6 +18,12 @@ two
 three
 ```
 
+## Goals
+ * Rapid development
+ * Easy to parse
+ * Easy to remember
+ * Single file output (including images)
+
 ## Directives
 Individual slides can be formatted differently:
 text (default):

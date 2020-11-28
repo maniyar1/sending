@@ -111,6 +111,19 @@ thing`
 	}
 }
 
+func TestSplitIntoSlidesLanguage(t *testing.T) {
+	input := `
+.pre
+.rust
+thing`
+	reader := strings.NewReader(input)
+	got := SplitIntoSlides(reader)
+    want := []slide{{SlideType: LANG, SlideText: "thing\n", Language: "rust"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 func TestSplitIntoSlides(t *testing.T) {
 	input := "one\n\ntwo\n\nthree"
 	reader := strings.NewReader(input)
@@ -184,6 +197,14 @@ func TestPreFromString(t *testing.T) {
 	}
 }
 
+func TestHighlightLanguage(t *testing.T) { // just make sures it can run...
+    input :=`if (bolb) {
+    fmt.Printf("ohno")
+}`
+    lang := "go"
+    HighlightLanguage(input, lang);
+}
+
 func TestLoadSvgFromPath(t *testing.T) {
 	input := "test/rect.svg"
 	want := `<svg>  <rect width="300" height="100" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" />
@@ -191,5 +212,23 @@ func TestLoadSvgFromPath(t *testing.T) {
 	got := LoadSvgFromPath(input)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestParseLanguage(t *testing.T) {
+    input := ".rust"
+    want := "rust"
+    exists, got := ParseLanguage(input)
+	if !reflect.DeepEqual(got, want) && exists {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestParseLanguageNotLanguage(t *testing.T) {
+    input := "yes it is me"
+    want := false
+    got, _ := ParseLanguage(input)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %t, want %t", got, want)
 	}
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg">
+<g font-family="monospace" font-size="14px">
+<text x="0" y="14" xml:space="preserve"><tspan fill="#008000" font-weight="bold">if</tspan>&#160;(bolb)&#160;{</text>
+<text x="0" y="33" xml:space="preserve">&#160;&#160;&#160;&#160;fmt.Printf(<tspan fill="#BA2121">&quot;ohno&quot;</tspan>)</text>
+<text x="0" y="52" xml:space="preserve">}</text>
+<text x="0" y="71" xml:space="preserve"></text></g></svg>

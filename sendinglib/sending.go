@@ -2,10 +2,13 @@ package sendinglib
 
 import (
 	"bufio"
+    "bytes"
 	"io"
+    "log"
 	"io/ioutil"
 	"strconv"
 	"strings"
+    "os/exec"
 )
 
 const (
@@ -16,11 +19,13 @@ const (
 	SVG            = ".svg"
 	TEXT           = ".txt"
 	PRE            = ".pre"
+    LANG           = ".[lang]"
 )
 
 type slide struct {
 	SlideType string
 	SlideText string
+    Language  string // only for pre
 }
 
 const Header = `
@@ -135,6 +140,38 @@ func LoadSvgFromPath(str string) string {
 	return result
 }
 
+func HighlightLanguage(str string, language string) string {
+    cmd := exec.Command("pygmentize", "-lgo", "-fhtml", "-Pnoclasses=True")
+    cmd.Stdin = strings.NewReader(str)
+    var out bytes.Buffer
+    cmd.Stdout = &out
+    var stderr bytes.Buffer
+    cmd.Stderr = &stderr
+    err := cmd.Run()
+    if err != nil {
+        log.Printf("Ran into error %s, defaulting to no syntax highlighting, stderr: %s", err, stderr.String())
+        return PreFromString(str)
+    } else {
+        return out.String()
+    }
+}
+
+func ParseLanguage(str string) (bool, string) {
+    if str[0] == '.' {
+        return true, str[1:len(str)]
+    } else {
+        return false, ""
+    }
+}
+
+func appendToLastStringInSlice(arr []slide, text string) {
+    currentSlide := &arr[len(arr)-1]
+    currentSlide.SlideText += text
+    if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG {
+        currentSlide.SlideText += "\n"
+    }
+}
+
 func SplitIntoSlides(reader io.Reader) []slide {
 	var result []slide
 	scanner := bufio.NewScanner(reader)
@@ -154,6 +191,15 @@ func SplitIntoSlides(reader io.Reader) []slide {
 					result = append(result, slide{SlideType: IMAGE})
 				} else if text == PRE {
 					result = append(result, slide{SlideType: PRE})
+                    scanner.Scan() // gotta rescan here ig
+                    text = scanner.Text()
+                    exist, value := ParseLanguage(text);
+                    if (exist) {
+                        result[len(result) - 1].Language = value
+                        result[len(result) - 1].SlideType = LANG
+                    } else {
+                        appendToLastStringInSlice(result, text)
+                    }
 				} else if text == TEXT {
 					result = append(result, slide{SlideType: TEXT})
 				} else {
@@ -161,11 +207,7 @@ func SplitIntoSlides(reader io.Reader) []slide {
 				}
 				new = false
 			} else {
-				currentSlide := &result[len(result)-1]
-				currentSlide.SlideText += text
-				if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG {
-					currentSlide.SlideText += "\n"
-				}
+                appendToLastStringInSlice(result, text);
 			}
 		} else {
 			new = true

@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+func init() {
+
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	slides := sendinglib.SplitIntoSlides(reader)
@@ -20,6 +24,9 @@ func main() {
 			fmt.Printf(sendinglib.MakeSection(str, i))
 		} else if slide.SlideType == sendinglib.PRE {
 			str := sendinglib.PreFromString(slide.SlideText)
+			fmt.Printf(sendinglib.MakeSection(str, i))
+		} else if slide.SlideType == sendinglib.LANG {
+			str := sendinglib.HighlightLanguage(slide.SlideText, slide.Language)
 			fmt.Printf(sendinglib.MakeSection(str, i))
 		} else if slide.SlideType == sendinglib.SVG {
 			str := sendinglib.LoadSvgFromPath(slide.SlideText)

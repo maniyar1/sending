@@ -2,8 +2,11 @@
 
 A port of [sent](https://tools.suckless.org/sent/) for generating minimal-js (or js-free) html slideshows.
 Usage:
-`sending <input file> <output file>`
+`sending` - currently takes input through stdin and outputs through stdout
 
+
+
+**NO EXAMPLE LINKS EXIST YET**
 Example input:
 ```
 one
@@ -78,6 +81,17 @@ if (bolb) {
 .txt
 second slide
 ```
+
+**Requires pygmentize in path**
+Syntax highlighted text:
+```
+.pre
+.go
+if (bolb) {
+    fmt.Printf("ohno")
+}
+```
+
 ([output](shrug))
 
 ([output](shrug))

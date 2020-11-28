@@ -34,6 +34,7 @@ struct Player {
 }
 
 .pre
+.rust
 fn send_to_all(teams: Vec<&HashMap<String, Player>>, text: String) {
     for map in teams {
         for (_name, player) in map {

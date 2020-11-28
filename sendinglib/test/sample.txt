@@ -44,13 +44,31 @@ fn send_to_all(teams: Vec<&HashMap<String, Player>>, text: String) {
     }
 }
 
-.pre
-fn send_to_all(teams: Vec<&HashMap<String, Player>>, text: String) {           x
-
 .txt
 Even supports svgs!
 
 .svg
 sendinglib/test/rect.svg
+
+Image time
+
+.img
+sendinglib/test/example.jpg
+an example image (this is some alt text!)
+
+Links are the only embeddedable directive
+
+Hi here's some text and BOOM
+.link
+a link to the source code to this document
+https://maniks.net/pres-demo.txt
+
+.li
+.link
+link
+https://maniks.net/pres-demo.txt
+.link
+list
+https://maniks.net/pres-demo.txt
 
 The End!

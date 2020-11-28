@@ -5,6 +5,9 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+    "encoding/base64"
+    "io/ioutil"
+    "fmt"
 )
 
 func TestFooter(t *testing.T) {
@@ -90,10 +93,13 @@ path/to/svg.svg`
 func TestSplitIntoSlidesImg(t *testing.T) {
 	input := `
 .img
-path/to/img.png`
+test/example.png
+alt text`
+    data, format := LoadBase64FromPath("test/example.png")
+    alt := "alt text"
 	reader := strings.NewReader(input)
 	got := SplitIntoSlides(reader)
-	want := []slide{{SlideType: IMAGE, SlideText: "path/to/img.png"}}
+	want := []slide{{SlideType: IMAGE, SlideText: AddImgTags(data, format, alt)}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
@@ -131,6 +137,43 @@ func TestSplitIntoSlides(t *testing.T) {
 	want := []slide{{SlideType: TEXT, SlideText: "one\n"},
 		{SlideType: TEXT, SlideText: "two\n"},
 		{SlideType: TEXT, SlideText: "three\n"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("splitIntoSlides(reader) = %q, want %q", got, want)
+	}
+}
+
+func TestCreateLink(t *testing.T) {
+    linkText := "link text";
+    linkRef := "https://google.com"
+    want := "<a href=\"https://google.com\">link text</a>"
+    got := createLink(linkText, linkRef);
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestSplitIntoSlidesLink(t *testing.T) {
+	input :=`
+.link
+link text
+https://google.com`
+	reader := strings.NewReader(input)
+	got := SplitIntoSlides(reader)
+    want := []slide{{SlideType: TEXT, SlideText: "<a href=\"https://google.com\">link text</a>\n"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("splitIntoSlides(reader) = %q, want %q", got, want)
+	}
+}
+
+func TestSplitIntoSlidesTextWithLink(t *testing.T) {
+	input :=`
+text
+.link
+link text
+https://google.com`
+	reader := strings.NewReader(input)
+	got := SplitIntoSlides(reader)
+    want := []slide{{SlideType: TEXT, SlideText: "text\n<a href=\"https://google.com\">link text</a>\n"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("splitIntoSlides(reader) = %q, want %q", got, want)
 	}
@@ -197,6 +240,15 @@ func TestPreFromString(t *testing.T) {
 	}
 }
 
+func TestParagraphFromString(t *testing.T) {
+	input := "text"
+	want := "<p>" + input + "</p>"
+	got := PreFromString(input)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 func TestHighlightLanguage(t *testing.T) { // just make sures it can run...
     input :=`if (bolb) {
     fmt.Printf("ohno")
@@ -210,6 +262,43 @@ func TestLoadSvgFromPath(t *testing.T) {
 	want := `<svg>  <rect width="300" height="100" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" />
 </svg>`
 	got := LoadSvgFromPath(input)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestLoadBase64FromPathPng(t *testing.T) {
+	input := "test/example.png"
+	content, _ := ioutil.ReadFile(input)
+    want := base64.StdEncoding.EncodeToString(content);
+	data, format := LoadBase64FromPath(input)
+	if !reflect.DeepEqual(data, want) && format != "png" {
+		t.Errorf("got %q\n\n\n want %q", data, want)
+	}
+}
+
+func TestLoadBase64FromPathJpg(t *testing.T) {
+	input := "test/example.jpg"
+	content, _ := ioutil.ReadFile(input)
+    want := base64.StdEncoding.EncodeToString(content);
+	data, format := LoadBase64FromPath(input)
+	if !reflect.DeepEqual(data, want) && format != "jpg" {
+		t.Errorf("got %q\n\n\n want %q", data, want)
+	}
+
+	input = "test/example.jpeg"
+	data, format = LoadBase64FromPath(input)
+	if !reflect.DeepEqual(data, want) && format != "jpg" {
+		t.Errorf("got %q\n\n\n want %q", data, want)
+	}
+}
+
+func TestAddImgTags(t *testing.T) {
+    input := "test/example.jpeg"
+    data, format := LoadBase64FromPath(input)
+    alt := "example"
+    want := fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt);
+    got := AddImgTags(data, format, alt)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}

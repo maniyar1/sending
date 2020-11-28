@@ -32,8 +32,10 @@ func main() {
 			str := sendinglib.LoadSvgFromPath(slide.SlideText)
 			fmt.Printf(sendinglib.MakeSection(str, i))
 		} else if slide.SlideType == sendinglib.IMAGE {
+			fmt.Printf(sendinglib.MakeSection(slide.SlideText, i)) // Image is a special case that is handled in the library because of alt-text
 		} else {
-			fmt.Printf(sendinglib.MakeSection(slide.SlideText, i))
+            str := sendinglib.ParagraphFromString(slide.SlideText)
+			fmt.Printf(sendinglib.MakeSection(str, i))
 		}
 	}
 	fmt.Printf(sendinglib.Footer)

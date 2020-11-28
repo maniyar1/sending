@@ -1,9 +1,11 @@
 # Sending
 
-A port of [sent](https://tools.suckless.org/sent/) for generating minimal-js (or js-free) html slideshows.
+A port of [sent](https://tools.suckless.org/sent/) for generating js-free html slideshows.
+[Demo](https://maniks.net/pres-demo.html)
+[Demo Source](sendinglib/test/sample.txt)
+
 Usage:
 `sending` - currently takes input through stdin and outputs through stdout
-
 
 
 **NO EXAMPLE LINKS EXIST YET**
@@ -16,9 +18,7 @@ two
 three
 ```
 
-Example output:
-[output link](shrug)
-
+## Directives
 Individual slides can be formatted differently:
 text (default):
 ```
@@ -28,7 +28,6 @@ one
 .txt
 second slide
 ```
-([output](shrug))
 
 list (default unordered):
 ```
@@ -39,7 +38,6 @@ three
 
 second slide
 ```
-([output](shrug))
 
 unordered list:
 ```
@@ -63,6 +61,13 @@ Image:
 ```
 .img
 path/example.png
+```
+
+Image with alt text:
+```
+.img
+path/example.png
+alt text
 ```
 
 Svg:
@@ -92,9 +97,13 @@ if (bolb) {
 }
 ```
 
-([output](shrug))
-
-([output](shrug))
+There is also a special '.link' directive for links, this is the only one that works mid-slide.
+```
+.text
+Some text
+.link
+https://google.com
+```
 
 Used as a reference:
 [Chen Hui Jing - HTML slides without frameworks, just CSS](https://chenhuijing.com/blog/html-slides-without-frameworks/)

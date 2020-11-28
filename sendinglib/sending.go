@@ -5,10 +5,12 @@ import (
     "bytes"
 	"io"
     "log"
+    "fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
     "os/exec"
+    "encoding/base64"
 )
 
 const (
@@ -19,6 +21,7 @@ const (
 	SVG            = ".svg"
 	TEXT           = ".txt"
 	PRE            = ".pre"
+    LINK           = ".link"
     LANG           = ".[lang]"
 )
 
@@ -34,6 +37,18 @@ const Header = `
     <head> 
         <meta name="viewport" content="width=device-width"> 
         <style> 
+        .next {
+            visibility: hidden;
+        }
+        .prev {
+            visibility: hidden;
+        }
+        @media (min-width: 600px) {
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
         html {
             height: 100%%; 
         }
@@ -70,17 +85,20 @@ const Header = `
             position: absolute;
         }
         .next {
+            visibility: visible;
             font-size: 1em;
             position: absolute;
             right: 0;
             bottom: 0;
         }
         .prev {
+            visibility: visible;
             font-size: 1em;
             position: absolute;
             left: 0;
             bottom: 0;
         }
+    }
         </style>
         <meta charset="UTF-8">
         <title>Presentation</title>
@@ -127,6 +145,9 @@ func OrderedListFromString(str string) string {
 	return result
 }
 
+func ParagraphFromString(str string) string {
+	return "<p>" + str + "</p>"
+}
 func PreFromString(str string) string {
 	return "<pre>" + str + "</pre>"
 }
@@ -138,6 +159,27 @@ func LoadSvgFromPath(str string) string {
 	}
 	result := "<svg>" + string(content) + "</svg>"
 	return result
+}
+
+func LoadBase64FromPath(str string) (string, string) {
+	content, err := ioutil.ReadFile(str)
+	if err != nil {
+		panic(err)
+	}
+    result := base64.StdEncoding.EncodeToString(content)
+    ending := strings.ToLower(str[len(str) - 3:len(str)])
+    if ending == "png" {
+        return result, "png"
+    } else if ending == "jpg" || ending == "peg" { // last three letters so jpeg = peg lol
+        return result, "jpg"
+    } else {
+        log.Printf("File format unknown (is this a jpg or png?), assuming png")
+        return result, "png"
+    }
+}
+
+func AddImgTags(data string, format string, alt string) string {
+    return fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt)
 }
 
 func HighlightLanguage(str string, language string) string {
@@ -164,10 +206,26 @@ func ParseLanguage(str string) (bool, string) {
     }
 }
 
-func appendToLastStringInSlice(arr []slide, text string) {
+func createLink(linkText string, linkRef string) string {
+    return fmt.Sprintf("<a href=\"%s\">%s</a>", linkRef, linkText)
+}
+
+func getLinkFromScanner(scanner *bufio.Scanner) string {
+        scanner.Scan() // gotta rescan here ig
+        linkText := scanner.Text() // next line has to be file path
+        scanner.Scan()
+        linkRef := scanner.Text()
+        return createLink(linkText, linkRef); // blank alt-text default
+}
+
+func appendToLastStringInSlice(arr []slide, text string, scanner *bufio.Scanner) {
     currentSlide := &arr[len(arr)-1]
-    currentSlide.SlideText += text
-    if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG {
+    if text == LINK {
+        arr[len(arr) - 1].SlideText += getLinkFromScanner(scanner)
+    } else {
+        currentSlide.SlideText += text
+    }
+    if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG && currentSlide.SlideType != LINK {
         currentSlide.SlideText += "\n"
     }
 }
@@ -189,6 +247,13 @@ func SplitIntoSlides(reader io.Reader) []slide {
 					result = append(result, slide{SlideType: ORDERED_LIST})
 				} else if text == IMAGE {
 					result = append(result, slide{SlideType: IMAGE})
+                    scanner.Scan() // gotta rescan here ig
+                    filePath := scanner.Text() // next line has to be file path
+                    data, format := LoadBase64FromPath(filePath)
+                    scanner.Scan()
+                    alt := scanner.Text() // next line is either blank, or the alt text, either is fine
+                    result[len(result) - 1].SlideText = AddImgTags(data, format, alt); // blank alt-text default
+                    continue // continue because sort of messed with the loop, restart for next label
 				} else if text == PRE {
 					result = append(result, slide{SlideType: PRE})
                     scanner.Scan() // gotta rescan here ig
@@ -198,16 +263,18 @@ func SplitIntoSlides(reader io.Reader) []slide {
                         result[len(result) - 1].Language = value
                         result[len(result) - 1].SlideType = LANG
                     } else {
-                        appendToLastStringInSlice(result, text)
+                        appendToLastStringInSlice(result, text, scanner)
                     }
 				} else if text == TEXT {
 					result = append(result, slide{SlideType: TEXT})
+				} else if text == LINK {
+                    result = append(result, slide{SlideType: TEXT, SlideText: getLinkFromScanner(scanner) + "\n"})
 				} else {
 					result = append(result, slide{SlideType: TEXT, SlideText: text + "\n"})
 				}
 				new = false
 			} else {
-                appendToLastStringInSlice(result, text);
+                appendToLastStringInSlice(result, text, scanner);
 			}
 		} else {
 			new = true

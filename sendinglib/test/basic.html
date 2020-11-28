@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width">
+        <style> 
+        html {
+            height: 100%;
+        }
+        body {
+            font-size: calc(1em + 10vmin);
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        section {
+          background-color: white;
+          height: 100vh;
+          width: 100%;
+          position: absolute;
+          z-index: 0;
+          display: flex;
+          justify-content: center;
+        }
+
+        section:target {
+          z-index: 1;
+        }
+
+        .next {
+            font-size: 1em;
+            position: absolute;
+            right: 0;
+            top: calc(50vh - 1em);
+        }
+        </style>
+        <meta charset="UTF-8">
+        <title>Presentation</title>
+    <body>
+        <main>
+          <section id="1"> 
+              <ul>
+                  <li> one 
+                  <li> two 
+                  <li> three 
+              </ul>
+              <a class="next" href="#2">next</a>
+          </section>
+          <section id="2"> 
+              <p>
+              more yes 
+              </p>
+          <a class="next" href="#3">next</a>
+          </section>
+          <section id="3"> 
+              <p>
+              even more yes 
+              </p>
+          <a class="next" href="#4">next</a>
+          </section>
+          <section id="4"> 
+              <p>
+              BOLB 
+              </p>
+          <a class="next" href="#2">next</a>
+          </section>
+          <section id="5"> 
+              <p>
+              bolbyes 
+              </p>
+          <a class="next" href="#2">next</a>
+          </section>
+        </main>
+    </body>
+</html>

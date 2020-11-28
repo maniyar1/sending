@@ -1,0 +1,55 @@
+Welcome! 
+Here's some normal text
+
+normal text
+
+.li
+you can
+do
+unordered lists
+
+.ol
+As well
+as
+ordered lists
+
+...and of course pre-formatted snippets
+
+.pre
+    import ( "strconv"
+             "testing"
+            "strings"
+            "reflect"
+         )
+
+.pre
+#[derive(Debug, Clone)]
+struct Player {
+    id: u8,
+    name: String,
+    stream: Arc<Mutex<TcpStream>>,
+    ready: bool,
+    team: Team,
+    health: i8,
+}
+
+.pre
+fn send_to_all(teams: Vec<&HashMap<String, Player>>, text: String) {
+    for map in teams {
+        for (_name, player) in map {
+            let mut stream = player.stream.lock().unwrap();
+            stream.write(text.as_bytes()).unwrap();
+        }
+    }
+}
+
+.pre
+fn send_to_all(teams: Vec<&HashMap<String, Player>>, text: String) {           x
+
+.txt
+Even supports svgs!
+
+.svg
+sendinglib/test/rect.svg
+
+The End!

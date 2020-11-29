@@ -109,6 +109,23 @@ const Header = `
             bottom: 0;
         }
     }
+    @media print {
+        .next {
+            visibility: hidden;
+        }
+        .prev {
+            visibility: hidden;
+        }
+
+        section {
+            position: initial;
+            z-index: intial;
+        }
+
+        section:target {
+          z-index: initial;
+        }
+    }
         </style>
         <meta charset="UTF-8">
         <title>Presentation</title>
@@ -158,6 +175,11 @@ func OrderedListFromString(str string) string {
 func ParagraphFromString(str string) string {
 	return "<p>" + str + "</p>"
 }
+
+func QuoteFromString(str string) string {
+	return "<blockquote>" + str + "</blockquote>"
+}
+
 func PreFromString(str string) string {
 	return "<pre>" + str + "</pre>"
 }

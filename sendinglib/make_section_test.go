@@ -249,6 +249,15 @@ func TestParagraphFromString(t *testing.T) {
 	}
 }
 
+func TestQuoteFromString(t *testing.T) {
+	input := "text"
+	want := "<blockquote>" + input + "</blockquote>"
+	got := QuoteFromString(input)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 func TestHighlightLanguage(t *testing.T) { // just make sures it can run...
     input :=`if (bolb) {
     fmt.Printf("ohno")

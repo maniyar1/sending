@@ -136,18 +136,22 @@ const Header = `
           switch (event.key) {
             case "Down": 
             case "ArrowDown":
+            case "j":
               prev();
               break;
             case "Up": 
             case "ArrowUp":
+            case "k":
               next();
               break;
             case "Left": 
             case "ArrowLeft":
+            case "h":
               prev();
               break;
             case "Right": // IE/Edge specific value
             case "ArrowRight":
+            case "l":
               next();
               break;
             default:

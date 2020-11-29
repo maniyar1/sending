@@ -45,6 +45,7 @@ const Header = `
         }
         @media (min-width: 600px) {
         * {
+            font-family: sans-serif;
             margin: 0;
             padding: 0;
             border: 0;
@@ -55,9 +56,12 @@ const Header = `
         body {
             font-size: calc(1em + 10vmin);
             overflow: hidden;
-            margin: 0;
-            padding: 0;
         }
+
+        p {
+            margin: 0.5em;
+        }
+
         section {
           background-color: white;
           height: 100vh;
@@ -68,6 +72,11 @@ const Header = `
           align-items: center;
           justify-content: center;
         }
+        
+        ul,ol {
+            font-size: 0.75em;
+        }
+
 
         pre {
             font-family: monospace;
@@ -84,6 +93,7 @@ const Header = `
             width: 100%%;
             position: absolute;
         }
+
         .next {
             visibility: visible;
             font-size: 1em;
@@ -107,7 +117,7 @@ const Header = `
         ` // Have to double percent signs to escape them
 const Footer = `
         <div class="start">
-            <a href="#0"> start </a>
+            <a href="#0" class="next"> start </a>
         </div>
         </main>
     </body>

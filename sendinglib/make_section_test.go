@@ -13,7 +13,7 @@ import (
 func TestFooter(t *testing.T) {
 	want := `
         <div class="start">
-            <a href="#0"> start </a>
+            <a href="#0" class="next"> start </a>
         </div>
         </main>
     </body>
@@ -243,7 +243,7 @@ func TestPreFromString(t *testing.T) {
 func TestParagraphFromString(t *testing.T) {
 	input := "text"
 	want := "<p>" + input + "</p>"
-	got := PreFromString(input)
+	got := ParagraphFromString(input)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}

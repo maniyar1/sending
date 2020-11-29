@@ -34,7 +34,7 @@ func main() {
 		} else if slide.SlideType == sendinglib.IMAGE {
 			fmt.Println(sendinglib.MakeSection(slide.SlideText, i)) // Image is a special case that is handled in the library because of alt-text
 		} else {
-            str := sendinglib.ParagraphFromString(slide.SlideText)
+			str := sendinglib.ParagraphFromString(slide.SlideText)
 			fmt.Println(sendinglib.MakeSection(str, i))
 		}
 	}

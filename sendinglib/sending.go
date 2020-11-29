@@ -2,15 +2,15 @@ package sendinglib
 
 import (
 	"bufio"
-    "bytes"
+	"bytes"
+	"encoding/base64"
+	"fmt"
 	"io"
-    "log"
-    "fmt"
 	"io/ioutil"
+	"log"
+	"os/exec"
 	"strconv"
 	"strings"
-    "os/exec"
-    "encoding/base64"
 )
 
 const (
@@ -21,14 +21,14 @@ const (
 	SVG            = ".svg"
 	TEXT           = ".txt"
 	PRE            = ".pre"
-    LINK           = ".link"
-    LANG           = ".[lang]"
+	LINK           = ".link"
+	LANG           = ".[lang]"
 )
 
 type slide struct {
 	SlideType string
 	SlideText string
-    Language  string // only for pre
+	Language  string // only for pre
 }
 
 const Header = `
@@ -249,68 +249,68 @@ func LoadBase64FromPath(str string) (string, string) {
 	if err != nil {
 		panic(err)
 	}
-    result := base64.StdEncoding.EncodeToString(content)
-    ending := strings.ToLower(str[len(str) - 3:len(str)])
-    if ending == "png" {
-        return result, "png"
-    } else if ending == "jpg" || ending == "peg" { // last three letters so jpeg = peg lol
-        return result, "jpg"
-    } else {
-        log.Printf("File format unknown (is this a jpg or png?), assuming png")
-        return result, "png"
-    }
+	result := base64.StdEncoding.EncodeToString(content)
+	ending := strings.ToLower(str[len(str)-3:])
+	if ending == "png" {
+		return result, "png"
+	} else if ending == "jpg" || ending == "peg" { // last three letters so jpeg = peg lol
+		return result, "jpg"
+	} else {
+		log.Printf("File format unknown (is this a jpg or png?), assuming png")
+		return result, "png"
+	}
 }
 
 func AddImgTags(data string, format string, alt string) string {
-    return fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt)
+	return fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt)
 }
 
 func HighlightLanguage(str string, language string) string {
-    cmd := exec.Command("pygmentize", "-lgo", "-fhtml", "-Pnoclasses=True")
-    cmd.Stdin = strings.NewReader(str)
-    var out bytes.Buffer
-    cmd.Stdout = &out
-    var stderr bytes.Buffer
-    cmd.Stderr = &stderr
-    err := cmd.Run()
-    if err != nil {
-        log.Printf("Ran into error %s, defaulting to no syntax highlighting, stderr: %s", err, stderr.String())
-        return PreFromString(str)
-    } else {
-        return out.String()
-    }
+	cmd := exec.Command("pygmentize", "-lgo", "-fhtml", "-Pnoclasses=True")
+	cmd.Stdin = strings.NewReader(str)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		log.Printf("Ran into error %s, defaulting to no syntax highlighting, stderr: %s", err, stderr.String())
+		return PreFromString(str)
+	} else {
+		return out.String()
+	}
 }
 
 func ParseLanguage(str string) (bool, string) {
-    if str[0] == '.' {
-        return true, str[1:len(str)]
-    } else {
-        return false, ""
-    }
+	if str[0] == '.' {
+		return true, str[1:]
+	} else {
+		return false, ""
+	}
 }
 
 func createLink(linkText string, linkRef string) string {
-    return fmt.Sprintf("<a href=\"%s\">%s</a>", linkRef, linkText)
+	return fmt.Sprintf("<a href=\"%s\">%s</a>", linkRef, linkText)
 }
 
 func getLinkFromScanner(scanner *bufio.Scanner) string {
-        scanner.Scan() // gotta rescan here ig
-        linkText := scanner.Text() // next line has to be file path
-        scanner.Scan()
-        linkRef := scanner.Text()
-        return createLink(linkText, linkRef); // blank alt-text default
+	scanner.Scan()             // gotta rescan here ig
+	linkText := scanner.Text() // next line has to be file path
+	scanner.Scan()
+	linkRef := scanner.Text()
+	return createLink(linkText, linkRef) // blank alt-text default
 }
 
 func appendToLastStringInSlice(arr []slide, text string, scanner *bufio.Scanner) {
-    currentSlide := &arr[len(arr)-1]
-    if text == LINK {
-        arr[len(arr) - 1].SlideText += getLinkFromScanner(scanner)
-    } else {
-        currentSlide.SlideText += text
-    }
-    if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG && currentSlide.SlideType != LINK {
-        currentSlide.SlideText += "\n"
-    }
+	currentSlide := &arr[len(arr)-1]
+	if text == LINK {
+		arr[len(arr)-1].SlideText += getLinkFromScanner(scanner)
+	} else {
+		currentSlide.SlideText += text
+	}
+	if currentSlide.SlideType != IMAGE && currentSlide.SlideType != SVG && currentSlide.SlideType != LINK {
+		currentSlide.SlideText += "\n"
+	}
 }
 
 func SplitIntoSlides(reader io.Reader) []slide {
@@ -330,34 +330,34 @@ func SplitIntoSlides(reader io.Reader) []slide {
 					result = append(result, slide{SlideType: ORDERED_LIST})
 				} else if text == IMAGE {
 					result = append(result, slide{SlideType: IMAGE})
-                    scanner.Scan() // gotta rescan here ig
-                    filePath := scanner.Text() // next line has to be file path
-                    data, format := LoadBase64FromPath(filePath)
-                    scanner.Scan()
-                    alt := scanner.Text() // next line is either blank, or the alt text, either is fine
-                    result[len(result) - 1].SlideText = AddImgTags(data, format, alt); // blank alt-text default
-                    continue // continue because sort of messed with the loop, restart for next label
+					scanner.Scan()             // gotta rescan here ig
+					filePath := scanner.Text() // next line has to be file path
+					data, format := LoadBase64FromPath(filePath)
+					scanner.Scan()
+					alt := scanner.Text()                                           // next line is either blank, or the alt text, either is fine
+					result[len(result)-1].SlideText = AddImgTags(data, format, alt) // blank alt-text default
+					continue                                                        // continue because sort of messed with the loop, restart for next label
 				} else if text == PRE {
 					result = append(result, slide{SlideType: PRE})
-                    scanner.Scan() // gotta rescan here ig
-                    text = scanner.Text()
-                    exist, value := ParseLanguage(text);
-                    if (exist) {
-                        result[len(result) - 1].Language = value
-                        result[len(result) - 1].SlideType = LANG
-                    } else {
-                        appendToLastStringInSlice(result, text, scanner)
-                    }
+					scanner.Scan() // gotta rescan here ig
+					text = scanner.Text()
+					exist, value := ParseLanguage(text)
+					if exist {
+						result[len(result)-1].Language = value
+						result[len(result)-1].SlideType = LANG
+					} else {
+						appendToLastStringInSlice(result, text, scanner)
+					}
 				} else if text == TEXT {
 					result = append(result, slide{SlideType: TEXT})
 				} else if text == LINK {
-                    result = append(result, slide{SlideType: TEXT, SlideText: getLinkFromScanner(scanner) + "\n"})
+					result = append(result, slide{SlideType: TEXT, SlideText: getLinkFromScanner(scanner) + "\n"})
 				} else {
 					result = append(result, slide{SlideType: TEXT, SlideText: text + "\n"})
 				}
 				new = false
 			} else {
-                appendToLastStringInSlice(result, text, scanner);
+				appendToLastStringInSlice(result, text, scanner)
 			}
 		} else {
 			new = true

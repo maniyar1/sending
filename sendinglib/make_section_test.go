@@ -1,13 +1,13 @@
 package sendinglib
 
 import (
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
-    "encoding/base64"
-    "io/ioutil"
-    "fmt"
 )
 
 func TestFooter(t *testing.T) {
@@ -95,8 +95,8 @@ func TestSplitIntoSlidesImg(t *testing.T) {
 .img
 test/example.png
 alt text`
-    data, format := LoadBase64FromPath("test/example.png")
-    alt := "alt text"
+	data, format := LoadBase64FromPath("test/example.png")
+	alt := "alt text"
 	reader := strings.NewReader(input)
 	got := SplitIntoSlides(reader)
 	want := []slide{{SlideType: IMAGE, SlideText: AddImgTags(data, format, alt)}}
@@ -124,7 +124,7 @@ func TestSplitIntoSlidesLanguage(t *testing.T) {
 thing`
 	reader := strings.NewReader(input)
 	got := SplitIntoSlides(reader)
-    want := []slide{{SlideType: LANG, SlideText: "thing\n", Language: "rust"}}
+	want := []slide{{SlideType: LANG, SlideText: "thing\n", Language: "rust"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
@@ -143,37 +143,37 @@ func TestSplitIntoSlides(t *testing.T) {
 }
 
 func TestCreateLink(t *testing.T) {
-    linkText := "link text";
-    linkRef := "https://google.com"
-    want := "<a href=\"https://google.com\">link text</a>"
-    got := createLink(linkText, linkRef);
+	linkText := "link text"
+	linkRef := "https://google.com"
+	want := "<a href=\"https://google.com\">link text</a>"
+	got := createLink(linkText, linkRef)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 }
 
 func TestSplitIntoSlidesLink(t *testing.T) {
-	input :=`
+	input := `
 .link
 link text
 https://google.com`
 	reader := strings.NewReader(input)
 	got := SplitIntoSlides(reader)
-    want := []slide{{SlideType: TEXT, SlideText: "<a href=\"https://google.com\">link text</a>\n"}}
+	want := []slide{{SlideType: TEXT, SlideText: "<a href=\"https://google.com\">link text</a>\n"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("splitIntoSlides(reader) = %q, want %q", got, want)
 	}
 }
 
 func TestSplitIntoSlidesTextWithLink(t *testing.T) {
-	input :=`
+	input := `
 text
 .link
 link text
 https://google.com`
 	reader := strings.NewReader(input)
 	got := SplitIntoSlides(reader)
-    want := []slide{{SlideType: TEXT, SlideText: "text\n<a href=\"https://google.com\">link text</a>\n"}}
+	want := []slide{{SlideType: TEXT, SlideText: "text\n<a href=\"https://google.com\">link text</a>\n"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("splitIntoSlides(reader) = %q, want %q", got, want)
 	}
@@ -259,11 +259,11 @@ func TestQuoteFromString(t *testing.T) {
 }
 
 func TestHighlightLanguage(t *testing.T) { // just make sures it can run...
-    input :=`if (bolb) {
+	input := `if (bolb) {
     fmt.Printf("ohno")
 }`
-    lang := "go"
-    HighlightLanguage(input, lang);
+	lang := "go"
+	HighlightLanguage(input, lang)
 }
 
 func TestLoadSvgFromPath(t *testing.T) {
@@ -279,7 +279,7 @@ func TestLoadSvgFromPath(t *testing.T) {
 func TestLoadBase64FromPathPng(t *testing.T) {
 	input := "test/example.png"
 	content, _ := ioutil.ReadFile(input)
-    want := base64.StdEncoding.EncodeToString(content);
+	want := base64.StdEncoding.EncodeToString(content)
 	data, format := LoadBase64FromPath(input)
 	if !reflect.DeepEqual(data, want) && format != "png" {
 		t.Errorf("got %q\n\n\n want %q", data, want)
@@ -289,7 +289,7 @@ func TestLoadBase64FromPathPng(t *testing.T) {
 func TestLoadBase64FromPathJpg(t *testing.T) {
 	input := "test/example.jpg"
 	content, _ := ioutil.ReadFile(input)
-    want := base64.StdEncoding.EncodeToString(content);
+	want := base64.StdEncoding.EncodeToString(content)
 	data, format := LoadBase64FromPath(input)
 	if !reflect.DeepEqual(data, want) && format != "jpg" {
 		t.Errorf("got %q\n\n\n want %q", data, want)
@@ -303,29 +303,29 @@ func TestLoadBase64FromPathJpg(t *testing.T) {
 }
 
 func TestAddImgTags(t *testing.T) {
-    input := "test/example.jpeg"
-    data, format := LoadBase64FromPath(input)
-    alt := "example"
-    want := fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt);
-    got := AddImgTags(data, format, alt)
+	input := "test/example.jpeg"
+	data, format := LoadBase64FromPath(input)
+	alt := "example"
+	want := fmt.Sprintf("<img src=\"data:image/%s;base64, %s\" alt=\"%s\"/>", format, data, alt)
+	got := AddImgTags(data, format, alt)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 }
 
 func TestParseLanguage(t *testing.T) {
-    input := ".rust"
-    want := "rust"
-    exists, got := ParseLanguage(input)
+	input := ".rust"
+	want := "rust"
+	exists, got := ParseLanguage(input)
 	if !reflect.DeepEqual(got, want) && exists {
 		t.Errorf("got %q, want %q", got, want)
 	}
 }
 
 func TestParseLanguageNotLanguage(t *testing.T) {
-    input := "yes it is me"
-    want := false
-    got, _ := ParseLanguage(input)
+	input := "yes it is me"
+	want := false
+	got, _ := ParseLanguage(input)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %t, want %t", got, want)
 	}

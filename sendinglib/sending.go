@@ -51,7 +51,7 @@ const Header = `
             border: 0;
         }
         html {
-            height: 100%%; 
+            height: 100%; 
         }
         body {
             font-size: calc(1em + 10vmin);
@@ -65,7 +65,7 @@ const Header = `
         section {
           background-color: white;
           height: 100vh;
-          width: 100%%;
+          width: 100%;
           position: absolute;
           z-index: 0;
           display: flex;
@@ -90,7 +90,7 @@ const Header = `
         .start {
             background-color: white;
             height: 100vh;
-            width: 100%%;
+            width: 100%;
             position: absolute;
         }
 

@@ -93,7 +93,8 @@ if (bolb) {
 second slide
 ```
 
-**Requires pygmentize in path**
+**Requires pygmentize in path** (pip install pygments)
+
 Syntax highlighted text:
 ```
 .pre
@@ -105,9 +106,10 @@ if (bolb) {
 
 There is also a special '.link' directive for links, this is the only one that works mid-slide.
 ```
-.text
+.txt
 Some text
 .link
+link-text (google)
 https://google.com
 ```
 
